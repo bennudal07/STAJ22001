@@ -15,7 +15,7 @@ Geliştirilen sistem; hardcoded (kod içine gömülü) form yapıları yerine **
 ## 2. Sistem Mimarisi ve Entegrasyon Süreci
 
 ### Ana Sistem Bağımlılığı ve Buton Entegrasyonu
-Kurumsal sağlık bilgi sistemlerinde, hastaların takibi merkezi bir **"Patient List" (Hasta Takip Listesi)** arayüzü üzerinden yönetilmektedir. Bu ana ekran; hastanın kabulünden taburculuğuna kadar olan tüm medikal seyrini koordine eden omurgadır. 
+Kurumsal sağlık bilgi sistemlerinde, hastaların takibi merkezi bir **"Patient List" (Hasta Takip Listesi)** arayüzü üzerinden yönetilmektedir. Bu ana ekran; hastanın kabulünden taburculuğuna kadar olan tüm medikal seyrini koordine eden omurgadır.
 
 Staj kapsamında geliştirilen modüller, bu ana sisteme şu adımlarla entegre edilmiştir:
 1. **Dinamik Hasta Bağlamı (Context Transfer):** Hasta listesi arayüzüne ilgili değerlendirme formlarını başlatan 3 adet tetikleyici buton entegre edilmiştir.
@@ -89,10 +89,11 @@ Tüm Master ve Detail tabloları için Oracle Sequence nesneleri (`BD_MC_*_SEQ`)
 │   ├── BDMCModifiedScore.dfm     # Modifiye Skor görsel arayüz tanımı
 │   ├── BDMCEdinburghDepScale.pas # Edinburgh Ölçeği iş mantığı ve veri eşleme
 │   └── BDMCEdinburghDepScale.dfm # Edinburgh Ölçeği görsel arayüz tanımı
-├── docs/
-│   └── SYSTEM_DOCUMENTATION.md   # Ayrıntılı form kullanım rehberi ve mimari analiz
 ├── .gitignore                    # Delphi geçici derleme artıklarını filtreleyen kural seti
 └── README.md                     # Ana proje sunum ve dokümantasyon belgesi
+```
+
+---
 
 ## 6. Projenin Çalışma Mantığı ve Yaşam Döngüsü
 
