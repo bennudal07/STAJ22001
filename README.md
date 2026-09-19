@@ -89,6 +89,7 @@ Tüm Master ve Detail tabloları için Oracle Sequence nesneleri (`BD_MC_*_SEQ`)
 │   ├── BDMCModifiedScore.dfm     # Modifiye Skor görsel arayüz tanımı
 │   ├── BDMCEdinburghDepScale.pas # Edinburgh Ölçeği iş mantığı ve veri eşleme
 │   └── BDMCEdinburghDepScale.dfm # Edinburgh Ölçeği görsel arayüz tanımı
+├── .gitattributes                # Satır sonu ve karakter kodlaması kuralları
 ├── .gitignore                    # Delphi geçici derleme artıklarını filtreleyen kural seti
 └── README.md                     # Ana proje sunum ve dokümantasyon belgesi
 ```
