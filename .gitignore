@@ -1,0 +1,37 @@
+# =============================================================================
+# Delphi / RAD Studio Build & Temporary Files
+# =============================================================================
+
+# Derlenmis Ikili Dosyalar (Compiled Binaries)
+*.dcu
+*.exe
+*.dll
+*.bpl
+*.dcp
+*.drc
+
+# Delphi Otomatik Yedek Dosyalari (Backup Files)
+*.~*
+*.bak
+
+# Proje Ayarlari ve IDE Onbellek Dosyalari (IDE State & Cache)
+*.identcache
+*.stat
+*.local
+*.tvsconfig
+*.dsk
+
+# Derleme Ciktilari ve Gecici Klasorler
+__history/
+__recovery/
+Win32/
+Win64/
+Debug/
+Release/
+
+# =============================================================================
+# OS & System Files
+# =============================================================================
+Thumbs.db
+Desktop.ini
+.DS_Store
