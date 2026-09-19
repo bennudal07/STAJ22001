@@ -93,3 +93,101 @@ Tüm Master ve Detail tabloları için Oracle Sequence nesneleri (`BD_MC_*_SEQ`)
 │   └── SYSTEM_DOCUMENTATION.md   # Ayrıntılı form kullanım rehberi ve mimari analiz
 ├── .gitignore                    # Delphi geçici derleme artıklarını filtreleyen kural seti
 └── README.md                     # Ana proje sunum ve dokümantasyon belgesi
+
+## 6. Projenin Çalışma Mantığı ve Yaşam Döngüsü
+
+Modüller, bağımsız çalışan tekil pencereler yerine **kurumsal bir ana omurgaya (Patient List) bağlı çalışan modüler bir mimari** ile kurgulanmıştır:
+
+```text
+[ Hasta Takip Listesi Ekranı (Patient List) ]
+       │
+       │  (Kullanıcı aktif hastayı seçer ve butona tıklar)
+       ▼
+[ Form Tetikleme & Context Transfer ] ──> Aktarılan Parametre: ActivePatientID (com_id)
+       │
+       ├──> 1. Veritabanından Dinamik Parametrelerin Yüklenmesi (MC_PARAMETERS)
+       ├──> 2. Varsa Hastanın Geçmiş Değerlendirmelerinin TDBGrid'e Getirilmesi
+       │
+       ▼
+[ Klinik Değerlendirme & Hesaplama ]
+       │
+       ├──> Sağlık personeli kriterleri işaretler (ComboBox / RadioGroup)
+       ├──> Arka plandaki Pascal skorlama algoritması eşzamanlı tetiklenir
+       └──> Toplam puan ve risk seviyesi (ör. "Sepsis Olasılığı") ekranda anlık güncellenir
+       │
+       ▼
+[ Kayıt ve Arşivleme ]
+       │
+       ├──> Sequence üzerinden benzersiz ID üretimi (NEXTVAL)
+       └──> Master ve Detail tablolarına eşzamanlı kayıt (Transaction / Commit)
+```
+
+### Adım Adım İşleyiş Süreci:
+
+1. **Dinamik Hasta Bağlamı (Context Transfer):** 
+   * Kullanıcı ana ekrandaki listeden hastayı seçip ilgili buton aksiyonunu çalıştırdığında, hastanın benzersiz kimlik/protokol numarası (`com_id`) parametre olarak alınır.
+2. **Metadata ile Arayüzün Beslenmesi:** 
+   * Form ayağa kalkarken şıklar ve soru metinleri kod içerisine statik olarak yazılmaz; `MC_PARAMETERS` ve `MC_PARAMETERS_DETAIL` tablolarından dinamik okunarak bileşenlere doldurulur.
+3. **Anlık Skorlama Algoritması:** 
+   * Her seçim işleminde form üzerindeki olay dinleyiciler (`OnChange` / `OnClick`) tetiklenir; seçimlerin veritabanındaki sayısal `VALUE` karşılıkları toplanarak toplam skor hesaplanır.
+4. **Veri Bütünlüğü ve Arşivleme:** 
+   * Kaydet butonuna basıldığında ilgili Oracle Sequence nesnesi üzerinden yeni bir ID tahsis edilir; oturum açan personel (`cuser`) ve işlem tarihi (`process_time`) damgalanarak Master-Detail ilişkisi içinde güvenli biçimde kaydedilir.
+
+---
+
+## 7. Geliştirme ve Kurulum Rehberi
+
+Projeyi yerel bir ortamda ayağa kaldırmak veya incelemek için izlenmesi gereken adımlar:
+
+### 1. Veritabanı Kurulumu (Oracle PL/SQL)
+Sırasıyla `database/` dizinindeki script'ler Oracle SQL Developer veya PL/SQL Developer üzerinde yetkili bir şema ile çalıştırılır:
+
+```sql
+@database/01_schema.sql
+@database/02_parameters_seed.sql
+@database/03_sequences.sql
+```
+
+### 2. Form Kodlarının Projeye Dahil Edilmesi (RAD Studio)
+1. Embarcadero RAD Studio (Delphi) ortamında mevcut HBYS projesi veya yeni bir VCL Forms Application projesi açılır.
+2. **Project Manager** üzerinden projeye sağ tıklanarak `Add...` seçeneğiyle `src/` klasöründeki `.pas` ve `.dfm` dosyaları projeye eklenir.
+3. Formun çağrılacağı ana ünite (örneğin `frmPatientList`) üzerinde ilgili form referansları `uses` bloğuna eklenir:
+   ```pascal
+   uses BDMCTollnerSepsis, BDMCModifiedScore, BDMCEdinburghDepScale;
+   ```
+4. İlgili butonun `OnClick` olayında form hasta parametresiyle örneklendirilir:
+   ```pascal
+   procedure TfrmPatientList.btnTollnerSepsisClick(Sender: TObject);
+   var
+     frmSepsis: TfrmBDMCTollnerSepsis;
+   begin
+     frmSepsis := TfrmBDMCTollnerSepsis.Create(Self, SelectedPatientComId);
+     try
+       frmSepsis.ShowModal;
+     finally
+       frmSepsis.Free;
+     end;
+   end;
+   ```
+
+---
+
+## 8. Mühendislik Çıktıları ve Yetkinlik Kazanımları
+
+* **Büyük Ölçekli Kurumsal Kod Tabanı Adaptasyonu:** 
+  * Mevcut bir kurumsal mimarinin dinamikleri analiz edilmiş, sisteme zarar vermeden modüler ve genişletilebilir (extensible) bileşenler eklemlenmiştir.
+* **Sağlık Bilişimi ve Klinik Karar Destek:** 
+  * Tıbbi değerlendirme kılavuzları (Töllner Sepsis, Aldrete, EPDS) yazılım ortamında matematiksel kurallara ve karar destek matrislerine dönüştürülmüştür.
+* **İlişkisel Veritabanı Tasarımı:** 
+  * Oracle PL/SQL ortamında Master-Detail, Sequence ve dinamik parametre tabloları ile normalizasyon kurallarına tam uyumlu bir şema kurgulanmıştır.
+* **Modern Object Pascal & VCL:** 
+  * RAD Studio ile olay yönelimli (event-driven) form geliştirme, kullanıcı doğrulama (validation) mekanizmaları ve form yaşam döngüsü yönetimi uygulanmıştır.
+
+---
+
+## 9. Proje ve Staj Bilgileri
+
+* **Geliştirici:** Bennu Dal
+* **Rol:** Yazılım Mühendisliği Stajyeri
+* **Firma / Lokasyon:** Bizmed (Sinerji Bilişim) — YTÜ Yıldız Teknopark
+* **Kullanılan Teknolojiler:** Embarcadero RAD Studio (Delphi), Oracle PL/SQL, VCL Form Mimarisi
